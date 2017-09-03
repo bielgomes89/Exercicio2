@@ -1,10 +1,57 @@
 package br.unisul.prog2.exercicio2;
 
+import static br.unisul.prog2.exercicio2.DatabaseService.getConnPostgres;
 import javax.swing.JOptionPane;
+import static br.unisul.prog2.exercicio2.EmpresaTxtReader.importar;
+import static br.unisul.prog2.exercicio2.EmpresaBD.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Exercicio2 {
 
     public static void main(String[] args) {
+        int menu = Integer.parseInt(JOptionPane.showInputDialog("Informe a opção desejada: \n"
+                                                                + "1 - Exercicio 1; \n"
+                                                                + "2 - Exercicio 2. \n"));
+        if (menu == 1){
+            Exercicio1();
+            
+        }else{
+            Exercicio2();
+        }
+    }
+    
+    public static void Exercicio1() {
+        getConnPostgres();
+        EmpresaBD database = new EmpresaBD();
+        
+        
+        int menu = Integer.parseInt(JOptionPane.showInputDialog("Informe a opção desejada: \n"
+                + "1 - Empresa Banco;\n"
+                + "2 - Importar arquivo txt para banco.\n"));
+        
+        switch (menu) {
+            case 1:
+                database.empresa_Insert();
+                break;
+            case 2:
+                ArrayList empresas = new ArrayList();
+                Scanner ler = new Scanner(System.in);
+                importar(empresas);
+                database.empresa_Insert();
+                
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "OPÇÃO INVÁLIDA");
+                break;
+        
+        }
+    
+    }
+    
+    public static void Exercicio2() {
         String cadastro = "";
         String pedido = "";
         String relatorio = "";
@@ -98,6 +145,5 @@ public class Exercicio2 {
             default:
                 System.out.println("Digite uma opção valida!");
         }
-
     }
 }
