@@ -60,6 +60,7 @@ public class Exercicio2 {
         getConnPostgres();
         Connection conn = null;
         PreparedStatement st = null;
+        int codigoCliente = 0;
         ResultSet rs = null;
         Cliente clienteDB = new Cliente();
         Pedido pedidoDB = new Pedido();
@@ -81,6 +82,7 @@ public class Exercicio2 {
                     String nome = "";
                     String marca = "";
                     float valor = 0;
+                    double valorTotal = 0.0;
                     int qtd = 0;
                     String endereco = "";
                     String telefone = "";
@@ -269,51 +271,222 @@ public class Exercicio2 {
 
                     switch (relatorio) {
                         case "1":
-//                       Listagem de Clientes
-                            msg = "";
-                            id = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um cliente: "));
-                            conn = DatabaseService.getConnPostgres();
-                            st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE codcli = ?");
-                            st.setInt(1, id);
+                            String optionlist = JOptionPane.showInputDialog("Insira uma opcao:\n"
+                                                                    + "1 - Listar por ID \n"
+                                                                    + "2 - Listar todos");
+                            switch(optionlist) {
+                                case "1":
+                                    //Listagem de Clientes por ID
+                                    msg = "";
+                                    id = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um cliente: "));
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE codcli = ?");
+                                    st.setInt(1, id);
 
-                            rs = st.executeQuery();
-                            if(rs.next()){
-                                while (rs.next()) {
-                                    id = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
-                                    nome = rs.getString("nome").equals("") ? "" : rs.getString("nome");
-                                    endereco = rs.getString("endereco").equals("") ? "" : rs.getString("endereco");
-                                    telefone = rs.getString("telefone").equals("") ? "" : rs.getString("telefone");
-                                    cpf = rs.getString("cpf").equals("") ? "" : rs.getString("cpf");
-                                    java.sql.Date data = rs.getDate("dtnascimento");
-                                    email = rs.getString("email").equals("") ? "" : rs.getString("email");
-                                    estadoCivil = rs.getString("senha").equals("") ? "" : rs.getString("senha");
+                                    rs = st.executeQuery();
+                                    while (rs.next()) {
+                                        id = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                                        nome = rs.getString("nome") == null ? "" : rs.getString("nome");
+                                        endereco = rs.getString("endereco") == null ? "" : rs.getString("endereco");
+                                        telefone = rs.getString("telefone") == null ? "" : rs.getString("telefone");
+                                        cpf = rs.getString("cpf") == null ? "" : rs.getString("cpf");
+                                        java.sql.Date data = rs.getDate("dtnascimento");
+                                        email = rs.getString("email") == null ? "" : rs.getString("email");
+                                        estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
 
+                                        msg +=  "ID: " + id + "\n"
+                                                + "Nome: " + nome + "\n"
+                                                + "CPF: " + cpf + "\n"
+                                                + "Endereco: " + endereco + "\n"
+                                                + "Telefone: " + telefone + "\n"
+                                                + "Dt. Nasc: " + data + "\n"
+                                                + "Email: " + email + "\n"
+                                                + "Estado Civil: " + estadoCivil + "\n\n";
+                                        System.out.println(msg);
 
-                                    msg +=  "ID: " + id + "\n "
-                                            + "Nome: " + nome + "\n"
-                                            + "CPF: " + cpf + "\n"
-                                            + "Endereco: " + endereco + "\n"
-                                            + "Telefone: " + telefone + "\n"
-                                            + "Dt. Nasc: " + data + "\n"
-                                            + "Email: " + email + "\n"
-                                            + "Estado Civil: " + estadoCivil + "\n\n";
-
-                                }
-                            } else {
-                                JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
-                            }
+                                    }
                             
-                            if(!"".equals(msg)) {
-                                JOptionPane.showMessageDialog(null, msg);
-                            }
+                                    if(!"".equals(msg)) {
+                                        JOptionPane.showMessageDialog(null, msg);
+                                    } else { 
+                                        JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
+                                    }
+                                    break;
+                                    
+                                case "2":
+                                    msg = "";
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM CLIENTES");
+                                    rs = st.executeQuery();
+                                    while (rs.next()) {
+                                        id = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                                        nome = rs.getString("nome") == null ? "" : rs.getString("nome");
+                                        endereco = rs.getString("endereco") == null ? "" : rs.getString("endereco");
+                                        telefone = rs.getString("telefone") == null ? "" : rs.getString("telefone");
+                                        cpf = rs.getString("cpf") == null ? "" : rs.getString("cpf");
+                                        java.sql.Date data = rs.getDate("dtnascimento");
+                                        email = rs.getString("email") == null ? "" : rs.getString("email");
+                                        estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
+
+                                        msg +=  "ID: " + id + "\n"
+                                                + "Nome: " + nome + "\n"
+                                                + "CPF: " + cpf + "\n"
+                                                + "Endereco: " + endereco + "\n"
+                                                + "Telefone: " + telefone + "\n"
+                                                + "Dt. Nasc: " + data + "\n"
+                                                + "Email: " + email + "\n"
+                                                + "Estado Civil: " + estadoCivil + "\n\n";
+                                        System.out.println(msg);
+
+                                    }
                             
+                                    if(!"".equals(msg)) {
+                                        JOptionPane.showMessageDialog(null, msg);
+                                    } else { 
+                                        JOptionPane.showMessageDialog(null, "CADASTROS NÃO ENCONTRADOS.");
+                                    }
+                                    break;
+                            
+                            }
                             break;
 
                         case "2":
 //                       Listagem de Produtos
+                            String optionlist2 = JOptionPane.showInputDialog("Insira uma opcao:\n"
+                                                                    + "1 - Listar por ID \n"
+                                                                    + "2 - Listar todos");
+                            switch(optionlist2) {
+                                case "1": // Listar por ID
+                                    msg = "";
+                                    id = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um produto: "));
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM PRODUTOS WHERE cod_produto = ?");
+                                    st.setInt(1, id);
+
+                                    rs = st.executeQuery();
+                                    while (rs.next()) {
+                                        id = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
+                                        nome = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
+                                        marca = rs.getString("marca") == null ? "" : rs.getString("marca");
+                                        telefone = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
+                                        qtd = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
+
+                                        msg +=  "ID: " + id + "\n"
+                                                + "Nome: " + nome + "\n"
+                                                + "Marca: " + marca + "\n"
+                                                + "Telefone: " + telefone + "\n"
+                                                + "Quantidade: " + qtd + "\n\n";
+
+                                        System.out.println(msg);
+
+                                    }
+
+                                    if(!"".equals(msg)) {
+                                        JOptionPane.showMessageDialog(null, msg);
+                                    } else { 
+                                        JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
+                                    }
+                                    break;
+                                    
+                                case "2": // Listar todos
+                                    msg = "";
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM PRODUTOS");
+
+                                    rs = st.executeQuery();
+                                    while (rs.next()) {
+                                        id = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
+                                        nome = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
+                                        marca = rs.getString("marca") == null ? "" : rs.getString("marca");
+                                        telefone = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
+                                        qtd = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
+
+                                        msg +=  "ID: " + id + "\n"
+                                                + "Nome: " + nome + "\n"
+                                                + "Marca: " + marca + "\n"
+                                                + "Telefone: " + telefone + "\n"
+                                                + "Quantidade: " + qtd + "\n\n";
+
+                                        System.out.println(msg);
+
+                                    }
+
+                                    if(!"".equals(msg)) {
+                                        JOptionPane.showMessageDialog(null, msg);
+                                    } else { 
+                                        JOptionPane.showMessageDialog(null, "CADASTROS NÃO ENCONTRADOS.");
+                                    }
+                                    break;
+                        
+                            }
                             break;
                         case "3":
 //                        Listagem de Pedidos
+                            String optionlist3 = JOptionPane.showInputDialog("Insira uma opcao:\n"
+                                                                    + "1 - Listar por ID \n"
+                                                                    + "2 - Listar todos");
+                            switch(optionlist3) {
+                                case "1": // Listar por ID
+                                    msg = "";
+                                    id = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um pedido: "));
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM PEDIDOS WHERE codpedido = ?");
+                                    st.setInt(1, id);
+
+                                    rs = st.executeQuery();
+                                    while (rs.next()) {
+                                        id = rs.getInt("codpedido") == 0 ? 0 : rs.getInt("codpedido");
+                                        codigoCliente = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                                        nome = rs.getString("descricao") == null ? "" : rs.getString("descricao");
+                                        valorTotal = rs.getDouble("valor_total") == 0.0 ? 0.0 : rs.getDouble("valor_total");
+                                        java.sql.Date data = rs.getDate("datapedido");
+
+                                        msg +=  "ID Pedido: " + id + "\n"
+                                                + "ID Cliente: " + codigoCliente + "\n"
+                                                + "Descrição: " + nome + "\n"
+                                                + "Valor Total: " + valorTotal + "\n"
+                                                + "Data Pedido: " + data + "\n\n";
+
+                                        System.out.println(msg);
+
+                                    }
+
+                                    if(!"".equals(msg)) {
+                                        JOptionPane.showMessageDialog(null, msg);
+                                    } else { 
+                                        JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
+                                    }
+
+                                case "2": // Listar todos
+                                    msg = "";
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM PEDIDOS");
+
+                                    rs = st.executeQuery();
+                                    while (rs.next()) {
+                                        id = rs.getInt("codpedido") == 0 ? 0 : rs.getInt("codpedido");
+                                        codigoCliente = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                                        nome = rs.getString("descricao") == null ? "" : rs.getString("descricao");
+                                        valorTotal = rs.getDouble("valor_total") == 0.0 ? 0.0 : rs.getDouble("valor_total");
+                                        java.sql.Date data = rs.getDate("datapedido");
+
+                                        msg +=  "ID Pedido: " + id + "\n"
+                                                + "ID Cliente: " + codigoCliente + "\n"
+                                                + "Descrição: " + nome + "\n"
+                                                + "Valor Total: " + valorTotal + "\n"
+                                                + "Data Pedido: " + data + "\n\n";
+
+                                        System.out.println(msg);
+
+                                    }
+
+                                    if(!"".equals(msg)) {
+                                        JOptionPane.showMessageDialog(null, msg);
+                                    } else { 
+                                        JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
+                                    }
+                                    break;
+                            }
                             break;
                         default:
                             System.out.println("erro");
