@@ -4,11 +4,15 @@ public class Produto {
     public int codigo;
     public String nome;
     public String marca;
-    public String preco;
-    public String quantidade;
+    public float preco;
+    int quantidade;
 
-    public void cadastroPedido() {
+    public void cadastroPedido(String nome, String marca, float preco, int quantidade) {
         Produto produtoDB = new Produto();
+        produtoDB.setNome(nome);
+        produtoDB.setMarca(marca);
+        produtoDB.setPreco(preco);
+        produtoDB.setQuantidade(quantidade);
     
     }
     
@@ -36,21 +40,22 @@ public class Produto {
         this.marca = marca;
     }
 
-    public String getPreco() {
+    public float getPreco() {
         return preco;
     }
 
-    public void setPreco(String preco) {
+    public void setPreco(float preco) {
         this.preco = preco;
     }
 
-    public String getQuantidade() {
+    public int getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(String quantidade) {
+    public void setQuantidade(int quantidade) {
         this.quantidade = quantidade;
     }
+
     
     
     

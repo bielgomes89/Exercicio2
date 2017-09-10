@@ -76,22 +76,26 @@ public class Exercicio2 {
 
             switch (opcao) {
                 case "1": //Cadastros
+                    String msg = "";
+                    int id = 0;
+                    String nome = "";
+                    String marca = "";
+                    float valor = 0;
+                    int qtd = 0;
+                    String endereco = "";
+                    String telefone = "";
+                    String cpf = "";
+                    String email = "";
+                    String estadoCivil = "";
+                    String dataNascimento = "";
+                    DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+                    DatabaseService.getConnPostgres();
                     cadastro = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Clientes" + "\n"
                             + "2 - Produtos");
 
                     switch (cadastro) {
                         case "1": // Cadastro de clientes
-                            int id = 0;
-                            String nome = "";
-                            String endereco = "";
-                            String telefone = "";
-                            String cpf = "";
-                            String email = "";
-                            String estadoCivil = "";
-                            String dataNascimento = "";
-                            String msg = "";
-                            DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
-                            DatabaseService.getConnPostgres();
+                            
                             String option1 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir cliente" + "\n"
                                     + "2 - Remover cliente" + "\n"
                                     + "3 - Alterar cliente");
@@ -125,7 +129,6 @@ public class Exercicio2 {
                                     st.setString(7, estadoCivil);
 
                                     rs = st.executeQuery();
-                                    System.out.println(st.executeQuery());
 
                                     break;
                                 case "2": // Remover Cliente
@@ -133,10 +136,10 @@ public class Exercicio2 {
                                     conn = DatabaseService.getConnPostgres();
                                     st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE cpf = ?");
                                     st.setString(1, cpf);
-                                    if (st.executeQuery() != null) {
+                                    rs = st.executeQuery();
+                                    if (rs.next()) {
                                         st = conn.prepareStatement("DELETE FROM CLIENTES WHERE cpf = ?");
                                         st.setString(1, cpf);
-                                        JOptionPane.showMessageDialog(null, "Cliente removido com sucesso!");
                                         rs = st.executeQuery();
                                     } else {
                                         JOptionPane.showMessageDialog(null, "CLIENTE NÃO ENCONTRADO.");
@@ -173,16 +176,64 @@ public class Exercicio2 {
                             break;
 
                         case "2": // Cadastro de produtos
+                            
                             String option2 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir Produto" + "\n"
                                     + "2 - Remover produto" + "\n"
                                     + "3 - Alterar produto");
 
                             switch (option2) {
-                                case "1":
+                                case "1": // Inserir Produto
+                                    id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do produto: "));
+                                    id = Integer.parseInt(String.format("%06d", id));
+                                    nome = JOptionPane.showInputDialog("Informe o nome do produto: ");
+                                    marca = JOptionPane.showInputDialog("Informe a marca do produto: ");
+                                    valor = Float.parseFloat(JOptionPane.showInputDialog("Informe o valor do produto: "));
+                                    qtd = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade do produto: "));
+                                    produtoDB.cadastroPedido(nome, marca, valor, qtd);
+                                    
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("INSERT INTO PRODUTOS (cod_produto, nome_produto, marca, valor_unitario, quantidade) VALUES(?, ?, ?, ?, ?)");
+                                    
+                                    st.setInt(1, id);
+                                    st.setString(2, nome);
+                                    st.setString(3, marca);
+                                    st.setFloat(4, valor);
+                                    st.setInt(5, qtd);
+
+                                    rs = st.executeQuery();
                                     break;
                                 case "2":
+                                    id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do produto: "));
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM PRODUTOS WHERE cod_produto = ?");
+                                    st.setInt(1, id);
+                                    rs = st.executeQuery();
+                                    if (rs.next()) {
+                                        st = conn.prepareStatement("DELETE FROM PRODUTOS WHERE cod_produto = ?");
+                                        st.setInt(1, id);
+                                        rs = st.executeQuery();
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "PRODUTO NÃO ENCONTRADO.");
+                                    }
+                                    
                                     break;
                                 case "3":
+                                    id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do produto: "));
+                                    nome = JOptionPane.showInputDialog("Informe o nome do produto: ");
+                                    marca = JOptionPane.showInputDialog("Informe a marca do produto: ");
+                                    valor = Float.parseFloat(JOptionPane.showInputDialog("Informe o valor do produto: "));
+                                    qtd = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade do produto: "));
+
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("UPDATE PRODUTOS SET nome_produto = ?, marca = ?, valor_unitario = ?, quantidade = ? WHERE cod_produto = ?");
+                                    st.setString(1, nome);
+                                    st.setString(2, marca);
+                                    st.setFloat(3, valor);
+                                    st.setInt(4, qtd);
+                                    st.setInt(5, id);
+
+                                    rs = st.executeQuery();
+                                    
                                     break;
                             }
 
@@ -219,6 +270,43 @@ public class Exercicio2 {
                     switch (relatorio) {
                         case "1":
 //                       Listagem de Clientes
+                            msg = "";
+                            id = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um cliente: "));
+                            conn = DatabaseService.getConnPostgres();
+                            st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE codcli = ?");
+                            st.setInt(1, id);
+
+                            rs = st.executeQuery();
+                            if(rs.next()){
+                                while (rs.next()) {
+                                    id = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                                    nome = rs.getString("nome").equals("") ? "" : rs.getString("nome");
+                                    endereco = rs.getString("endereco").equals("") ? "" : rs.getString("endereco");
+                                    telefone = rs.getString("telefone").equals("") ? "" : rs.getString("telefone");
+                                    cpf = rs.getString("cpf").equals("") ? "" : rs.getString("cpf");
+                                    java.sql.Date data = rs.getDate("dtnascimento");
+                                    email = rs.getString("email").equals("") ? "" : rs.getString("email");
+                                    estadoCivil = rs.getString("senha").equals("") ? "" : rs.getString("senha");
+
+
+                                    msg +=  "ID: " + id + "\n "
+                                            + "Nome: " + nome + "\n"
+                                            + "CPF: " + cpf + "\n"
+                                            + "Endereco: " + endereco + "\n"
+                                            + "Telefone: " + telefone + "\n"
+                                            + "Dt. Nasc: " + data + "\n"
+                                            + "Email: " + email + "\n"
+                                            + "Estado Civil: " + estadoCivil + "\n\n";
+
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
+                            }
+                            
+                            if(!"".equals(msg)) {
+                                JOptionPane.showMessageDialog(null, msg);
+                            }
+                            
                             break;
 
                         case "2":
