@@ -4,8 +4,14 @@ import static br.unisul.prog2.exercicio2.DatabaseService.getConnPostgres;
 import javax.swing.JOptionPane;
 import static br.unisul.prog2.exercicio2.EmpresaTxtReader.importar;
 import static br.unisul.prog2.exercicio2.EmpresaBD.*;
+import static java.lang.String.format;
+import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -13,25 +19,24 @@ public class Exercicio2 {
 
     public static void main(String[] args) {
         int menu = Integer.parseInt(JOptionPane.showInputDialog("Informe a opção desejada: \n"
-                                                                + "1 - Exercicio 1; \n"
-                                                                + "2 - Exercicio 2. \n"));
-        if (menu == 1){
+                + "1 - Exercicio 1; \n"
+                + "2 - Exercicio 2. \n"));
+        if (menu == 1) {
             Exercicio1();
-            
-        }else{
+
+        } else {
             Exercicio2();
         }
     }
-    
+
     public static void Exercicio1() {
         getConnPostgres();
         EmpresaBD database = new EmpresaBD();
-        
-        
+
         int menu = Integer.parseInt(JOptionPane.showInputDialog("Informe a opção desejada: \n"
                 + "1 - Empresa Banco;\n"
                 + "2 - Importar arquivo txt para banco.\n"));
-        
+
         switch (menu) {
             case 1:
                 database.empresa_Insert();
@@ -41,109 +46,167 @@ public class Exercicio2 {
                 Scanner ler = new Scanner(System.in);
                 importar(empresas);
                 database.empresa_Insert();
-                
+
                 break;
             default:
                 JOptionPane.showMessageDialog(null, "OPÇÃO INVÁLIDA");
                 break;
-        
+
         }
-    
+
     }
-    
+
     public static void Exercicio2() {
+        getConnPostgres();
+        Connection conn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        Cliente clienteDB = new Cliente();
+        Pedido pedidoDB = new Pedido();
+        Produto produtoDB = new Produto();
         String cadastro = "";
         String pedido = "";
         String relatorio = "";
 
-        String opcao = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Cadastros" + "\n"
-                + "2 - Pedidos" + "\n"
-                + "3 - Relatórios");
+        try {
 
-        switch (opcao) {
-            case "1":
-                cadastro = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Clientes" + "\n"
-                        + "2 - Produtos");
+            String opcao = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Cadastros" + "\n"
+                    + "2 - Pedidos" + "\n"
+                    + "3 - Relatórios");
 
-                switch (cadastro) {
-                    case "1":
-                        String option1 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir" + "\n"
-                        + "2 - Remover" + "\n"
-                        + "3 - Alterar" );
-                        
-                        switch (option1) {
-                            case "1":
-                                break;
-                            case "2":
-                                break;
-                            case "3":
-                                break;
-                        }
-                        
-                        break;
+            switch (opcao) {
+                case "1": //Cadastros
+                    cadastro = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Clientes" + "\n"
+                            + "2 - Produtos");
 
-                    case "2":
-                        String option2 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir" + "\n"
-                        + "2 - Remover" + "\n"
-                        + "3 - Alterar" );
-                        
-                        switch (option2) {
-                            case "1":
-                                break;
-                            case "2":
-                                break;
-                            case "3":
-                                break;
-                        }
-                        
-                        break;
-                    default:
-                        System.out.println("erro");
-                        break;
-                }
-                break;
+                    switch (cadastro) {
+                        case "1": // Cadastro de clientes
+                            DatabaseService.getConnPostgres();
+                            String option1 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir cliente" + "\n"
+                                    + "2 - Remover cliente" + "\n"
+                                    + "3 - Alterar cliente");
 
-            case "2":
-                pedido = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Efetuar Pedido" + "\n"
-                        + "2 - Consultar Pedido");
+                            switch (option1) {
+                                case "1": //Inserir Cliente
+                                    
+                                    clienteDB.setNome(JOptionPane.showInputDialog("Informe o nome do cliente: "));
+                                    clienteDB.setCpf(JOptionPane.showInputDialog("Informe o CPF do cliente: "));
+                                    clienteDB.setEndereco(JOptionPane.showInputDialog("Informe o endereço do cliente: "));
+                                    clienteDB.setTelefone(JOptionPane.showInputDialog("Informe o telefone do cliente: "));
+                                    clienteDB.setDataNascimento(JOptionPane.showInputDialog("Informe a data de nascimento do cliente: "));
+                                    clienteDB.setEmail(JOptionPane.showInputDialog("Informe o email do cliente: "));
+                                    clienteDB.setEstadoCivil(JOptionPane.showInputDialog("Informe o Estado Civil do cliente: "));
+                                    
+                                    DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+                                    java.util.Date dtnasc = formatter.parse(clienteDB.getDataNascimento());
+                                    java.sql.Date sqlDate = new java.sql.Date(dtnasc.getTime());
+                                    
+                                    java.sql.Date data = new java.sql.Date(formatter.parse(clienteDB.getDataNascimento()).getTime());
+                                    
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("INSERT INTO CLIENTES (nome, cpf, endereco, telefone, dtnascimento, email, senha) VALUES( ?, ?, ?, ?, ?, ?, ?)");
 
-                switch (pedido) {
-                    case "1":
+                                    st.setString(1, clienteDB.getNome());
+                                    st.setString(2, clienteDB.getCpf());
+                                    st.setString(3, clienteDB.getEndereco());
+                                    st.setString(4, clienteDB.getTelefone());
+                                    st.setDate(5, sqlDate);
+                                    st.setString(6, clienteDB.getEmail());
+                                    st.setString(7, clienteDB.getEstadoCivil());
+
+                                    rs = st.executeQuery();
+
+                                    break;
+                                case "2": // Remover Cliente
+
+                                    break;
+                                case "3": // Alterar Cliente
+
+                                    break;
+                            }
+
+                            break;
+
+                        case "2": // Cadastro de produtos
+                            String option2 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir Produto" + "\n"
+                                    + "2 - Remover produto" + "\n"
+                                    + "3 - Alterar produto");
+
+                            switch (option2) {
+                                case "1":
+                                    break;
+                                case "2":
+                                    break;
+                                case "3":
+                                    break;
+                            }
+
+                            break;
+                        default:
+                            System.out.println("erro");
+                            break;
+                    }
+                    break;
+
+                case "2": // Pedidos
+                    pedido = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Efetuar Pedido" + "\n"
+                            + "2 - Consultar Pedido");
+
+                    switch (pedido) {
+                        case "1":
 //                       Efetuar Pedidos
-                        break;
+                            break;
 
-                    case "2":
+                        case "2":
 //                       Listar Produtos
-                        break;
+                            break;
 
-                    default:
-                        System.out.println("erro");
-                }
-                break;
+                        default:
+                            System.out.println("erro");
+                    }
+                    break;
 
-            case "3":
-                relatorio = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Listagem de Clientes" + "\n"
-                        + "2 - Listagem de Produtos \n"
-                        + "3 - Listagem de Pedidos");
+                case "3": // Relatórios
+                    relatorio = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Listagem de Clientes" + "\n"
+                            + "2 - Listagem de Produtos \n"
+                            + "3 - Listagem de Pedidos");
 
-                switch (relatorio) {
-                    case "1":
+                    switch (relatorio) {
+                        case "1":
 //                       Listagem de Clientes
-                        break;
+                            break;
 
-                    case "2":
+                        case "2":
 //                       Listagem de Produtos
-                        break;
-                    case "3":
+                            break;
+                        case "3":
 //                        Listagem de Pedidos
-                        break;
-                    default:
-                        System.out.println("erro");
-                }
-                break;
+                            break;
+                        default:
+                            System.out.println("erro");
+                    }
+                    break;
 
-            default:
-                System.out.println("Digite uma opção valida!");
+                default:
+                    System.out.println("Digite uma opção valida!");
+
+            }
+
+        } catch (Exception e) {
+            System.err.println(e);
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+
+            } catch (Exception e) {
+
+            }
+
         }
     }
 }

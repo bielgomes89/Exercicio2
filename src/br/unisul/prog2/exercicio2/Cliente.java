@@ -74,7 +74,4 @@ public class Cliente {
     public void setDataNascimento(String dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
-    
-    
-    
 }
