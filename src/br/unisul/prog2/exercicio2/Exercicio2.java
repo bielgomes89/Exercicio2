@@ -81,6 +81,16 @@ public class Exercicio2 {
 
                     switch (cadastro) {
                         case "1": // Cadastro de clientes
+                            int id = 0;
+                            String nome = "";
+                            String endereco = "";
+                            String telefone = "";
+                            String cpf = "";
+                            String email = "";
+                            String estadoCivil = "";
+                            String dataNascimento = "";
+                            String msg = "";
+                            DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
                             DatabaseService.getConnPostgres();
                             String option1 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir cliente" + "\n"
                                     + "2 - Remover cliente" + "\n"
@@ -88,40 +98,75 @@ public class Exercicio2 {
 
                             switch (option1) {
                                 case "1": //Inserir Cliente
-                                    
-                                    clienteDB.setNome(JOptionPane.showInputDialog("Informe o nome do cliente: "));
-                                    clienteDB.setCpf(JOptionPane.showInputDialog("Informe o CPF do cliente: "));
-                                    clienteDB.setEndereco(JOptionPane.showInputDialog("Informe o endereço do cliente: "));
-                                    clienteDB.setTelefone(JOptionPane.showInputDialog("Informe o telefone do cliente: "));
-                                    clienteDB.setDataNascimento(JOptionPane.showInputDialog("Informe a data de nascimento do cliente: "));
-                                    clienteDB.setEmail(JOptionPane.showInputDialog("Informe o email do cliente: "));
-                                    clienteDB.setEstadoCivil(JOptionPane.showInputDialog("Informe o Estado Civil do cliente: "));
-                                    
-                                    DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
-                                    java.util.Date dtnasc = formatter.parse(clienteDB.getDataNascimento());
+                                    nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
+                                    endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
+                                    telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
+                                    cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
+                                    email = JOptionPane.showInputDialog("Informe o email do cliente: ");
+                                    estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
+                                    dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
+
+                                    clienteDB.cadastroCliente(nome, endereco, telefone, cpf, email, estadoCivil, dataNascimento);
+
+                                    java.util.Date dtnasc = formatter.parse(dataNascimento);
                                     java.sql.Date sqlDate = new java.sql.Date(dtnasc.getTime());
-                                    
-                                    java.sql.Date data = new java.sql.Date(formatter.parse(clienteDB.getDataNascimento()).getTime());
-                                    
+
+                                    java.sql.Date data = new java.sql.Date(formatter.parse(dataNascimento).getTime());
+
                                     conn = DatabaseService.getConnPostgres();
                                     st = conn.prepareStatement("INSERT INTO CLIENTES (nome, cpf, endereco, telefone, dtnascimento, email, senha) VALUES( ?, ?, ?, ?, ?, ?, ?)");
 
-                                    st.setString(1, clienteDB.getNome());
-                                    st.setString(2, clienteDB.getCpf());
-                                    st.setString(3, clienteDB.getEndereco());
-                                    st.setString(4, clienteDB.getTelefone());
-                                    st.setDate(5, sqlDate);
-                                    st.setString(6, clienteDB.getEmail());
-                                    st.setString(7, clienteDB.getEstadoCivil());
+                                    st.setString(1, nome);
+                                    st.setString(2, endereco);
+                                    st.setString(3, telefone);
+                                    st.setString(4, cpf);
+                                    st.setDate(5, data);
+                                    st.setString(6, email);
+                                    st.setString(7, estadoCivil);
 
                                     rs = st.executeQuery();
+                                    System.out.println(st.executeQuery());
 
                                     break;
                                 case "2": // Remover Cliente
+                                    cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE cpf = ?");
+                                    st.setString(1, cpf);
+                                    if (st.executeQuery() != null) {
+                                        st = conn.prepareStatement("DELETE FROM CLIENTES WHERE cpf = ?");
+                                        st.setString(1, cpf);
+                                        JOptionPane.showMessageDialog(null, "Cliente removido com sucesso!");
+                                        rs = st.executeQuery();
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "CLIENTE NÃO ENCONTRADO.");
+                                    }
 
                                     break;
                                 case "3": // Alterar Cliente
+                                    id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do Cliente:"));
+                                    nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
+                                    endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
+                                    telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
+                                    cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
+                                    email = JOptionPane.showInputDialog("Informe o email do cliente: ");
+                                    estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
+                                    dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
+                                    dtnasc = formatter.parse(dataNascimento);
+                                    sqlDate = new java.sql.Date(dtnasc.getTime());
 
+                                    conn = DatabaseService.getConnPostgres();
+                                    st = conn.prepareStatement("UPDATE CLIENTES SET nome = ?, cpf = ?, endereco = ?, telefone = ?, dtnascimento = ?, email = ?, senha = ? WHERE codcli = ?");
+                                    st.setString(1, nome);
+                                    st.setString(2, endereco);
+                                    st.setString(3, telefone);
+                                    st.setString(4, cpf);
+                                    st.setDate(5, sqlDate);
+                                    st.setString(6, email);
+                                    st.setString(7, estadoCivil);
+                                    st.setInt(8, id);
+
+                                    rs = st.executeQuery();
                                     break;
                             }
 

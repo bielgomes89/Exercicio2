@@ -7,6 +7,11 @@ public class Produto {
     public String preco;
     public String quantidade;
 
+    public void cadastroPedido() {
+        Produto produtoDB = new Produto();
+    
+    }
+    
     public int getCodigo() {
         return codigo;
     }

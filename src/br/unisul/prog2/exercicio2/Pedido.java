@@ -7,6 +7,11 @@ public class Pedido {
     public double valorTotal; 
     public String dataPedido;
 
+    public void cadastroPedido() {
+        Pedido pedidoDB = new Pedido();
+        
+    }
+    
     public int getCodigo() {
         return codigo;
     }

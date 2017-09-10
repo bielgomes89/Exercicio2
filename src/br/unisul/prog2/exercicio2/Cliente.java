@@ -11,6 +11,17 @@ public class Cliente {
     public String estadoCivil;
     public String dataNascimento;
 
+    public void cadastroCliente(String nome, String endereco, String telefone, String cpf, String email, String estadoCivil, String dataNascimento ) {
+        Cliente clienteDB = new Cliente();
+        clienteDB.setNome(nome);
+        clienteDB.setCpf(cpf);
+        clienteDB.setEndereco(endereco);
+        clienteDB.setTelefone(telefone);
+        clienteDB.setDataNascimento(dataNascimento);
+        clienteDB.setEmail(email);
+        clienteDB.setEstadoCivil(estadoCivil);
+    }
+    
     public int getCodigo() {
         return codigo;
     }
