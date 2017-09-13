@@ -4,6 +4,8 @@ import static br.unisul.prog2.exercicio2.DatabaseService.getConnPostgres;
 import javax.swing.JOptionPane;
 import static br.unisul.prog2.exercicio2.EmpresaTxtReader.importar;
 import static br.unisul.prog2.exercicio2.EmpresaBD.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import static java.lang.String.format;
 import java.sql.*;
 import java.sql.Connection;
@@ -14,8 +16,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
+import javafx.scene.control.ComboBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
 
 public class Exercicio2 {
+
+    static Connection conn;
 
     public static void main(String[] args) {
         int menu = Integer.parseInt(JOptionPane.showInputDialog("Informe a opção desejada: \n"
@@ -58,7 +65,7 @@ public class Exercicio2 {
 
     public static void Exercicio2() {
         getConnPostgres();
-        Connection conn = null;
+        conn = null;
         PreparedStatement st = null;
         int codigoCliente = 0;
         ResultSet rs = null;
@@ -97,7 +104,7 @@ public class Exercicio2 {
 
                     switch (cadastro) {
                         case "1": // Cadastro de clientes
-                            
+
                             String option1 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir cliente" + "\n"
                                     + "2 - Remover cliente" + "\n"
                                     + "3 - Alterar cliente");
@@ -178,7 +185,7 @@ public class Exercicio2 {
                             break;
 
                         case "2": // Cadastro de produtos
-                            
+
                             String option2 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir Produto" + "\n"
                                     + "2 - Remover produto" + "\n"
                                     + "3 - Alterar produto");
@@ -192,10 +199,10 @@ public class Exercicio2 {
                                     valor = Float.parseFloat(JOptionPane.showInputDialog("Informe o valor do produto: "));
                                     qtd = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade do produto: "));
                                     produtoDB.cadastroPedido(nome, marca, valor, qtd);
-                                    
+
                                     conn = DatabaseService.getConnPostgres();
                                     st = conn.prepareStatement("INSERT INTO PRODUTOS (cod_produto, nome_produto, marca, valor_unitario, quantidade) VALUES(?, ?, ?, ?, ?)");
-                                    
+
                                     st.setInt(1, id);
                                     st.setString(2, nome);
                                     st.setString(3, marca);
@@ -217,7 +224,7 @@ public class Exercicio2 {
                                     } else {
                                         JOptionPane.showMessageDialog(null, "PRODUTO NÃO ENCONTRADO.");
                                     }
-                                    
+
                                     break;
                                 case "3":
                                     id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do produto: "));
@@ -235,7 +242,7 @@ public class Exercicio2 {
                                     st.setInt(5, id);
 
                                     rs = st.executeQuery();
-                                    
+
                                     break;
                             }
 
@@ -252,7 +259,40 @@ public class Exercicio2 {
 
                     switch (pedido) {
                         case "1":
-//                       Efetuar Pedidos
+//                       nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
+//                            JComboBox jay = loadcombo();
+//                            Object[] codcli = new Object[]{};
+//
+//                            JFrame frame = new JFrame("Input Dialog Example 3");
+//
+//                            String favoritePizza = (String) JOptionPane.showInputDialog(frame,
+//                                    "What is your favorite pizza?",
+//                                    "Favorite Pizza",
+//                                    JOptionPane.QUESTION_MESSAGE,
+//                                    null,
+//                                    codcli,
+//                                    codcli[0]);
+
+                            telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
+                            cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
+                            email = JOptionPane.showInputDialog("Informe o email do cliente: ");
+                            estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
+//                            dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
+
+//                            clienteDB.cadastroCliente(nome, endereco, telefone, cpf, email, estadoCivil, dataNascimento);
+//                            java.util.Date dtnasc = formatter.parse(dataNascimento);
+//                            java.sql.Date sqlDate = new java.sql.Date(dtnasc.getTime());
+//                            java.sql.Date data = new java.sql.Date(formatter.parse(dataNascimento).getTime());
+//                            conn = DatabaseService.getConnPostgres();
+//                            st = conn.prepareStatement("INSERT INTO PEDIDOS (codcli, descricao, valor_total, datapedido) VALUES( ?, ?, ?, ?)");
+//                            st.setString(1, nome);
+//                            st.setString(2, endereco);
+//                            st.setString(3, telefone);
+//                            st.setString(4, cpf);
+//                            st.setDate(5, data);
+//                            st.setString(6, email);
+//                            st.setString(7, estadoCivil);
+                            rs = st.executeQuery();
                             break;
 
                         case "2":
@@ -272,9 +312,9 @@ public class Exercicio2 {
                     switch (relatorio) {
                         case "1":
                             String optionlist = JOptionPane.showInputDialog("Insira uma opcao:\n"
-                                                                    + "1 - Listar por ID \n"
-                                                                    + "2 - Listar todos");
-                            switch(optionlist) {
+                                    + "1 - Listar por ID \n"
+                                    + "2 - Listar todos");
+                            switch (optionlist) {
                                 case "1":
                                     //Listagem de Clientes por ID
                                     msg = "";
@@ -294,7 +334,7 @@ public class Exercicio2 {
                                         email = rs.getString("email") == null ? "" : rs.getString("email");
                                         estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
 
-                                        msg +=  "ID: " + id + "\n"
+                                        msg += "ID: " + id + "\n"
                                                 + "Nome: " + nome + "\n"
                                                 + "CPF: " + cpf + "\n"
                                                 + "Endereco: " + endereco + "\n"
@@ -305,14 +345,14 @@ public class Exercicio2 {
                                         System.out.println(msg);
 
                                     }
-                            
-                                    if(!"".equals(msg)) {
+
+                                    if (!"".equals(msg)) {
                                         JOptionPane.showMessageDialog(null, msg);
-                                    } else { 
+                                    } else {
                                         JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
                                     }
                                     break;
-                                    
+
                                 case "2":
                                     msg = "";
                                     conn = DatabaseService.getConnPostgres();
@@ -328,7 +368,7 @@ public class Exercicio2 {
                                         email = rs.getString("email") == null ? "" : rs.getString("email");
                                         estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
 
-                                        msg +=  "ID: " + id + "\n"
+                                        msg += "ID: " + id + "\n"
                                                 + "Nome: " + nome + "\n"
                                                 + "CPF: " + cpf + "\n"
                                                 + "Endereco: " + endereco + "\n"
@@ -339,23 +379,23 @@ public class Exercicio2 {
                                         System.out.println(msg);
 
                                     }
-                            
-                                    if(!"".equals(msg)) {
+
+                                    if (!"".equals(msg)) {
                                         JOptionPane.showMessageDialog(null, msg);
-                                    } else { 
+                                    } else {
                                         JOptionPane.showMessageDialog(null, "CADASTROS NÃO ENCONTRADOS.");
                                     }
                                     break;
-                            
+
                             }
                             break;
 
                         case "2":
 //                       Listagem de Produtos
                             String optionlist2 = JOptionPane.showInputDialog("Insira uma opcao:\n"
-                                                                    + "1 - Listar por ID \n"
-                                                                    + "2 - Listar todos");
-                            switch(optionlist2) {
+                                    + "1 - Listar por ID \n"
+                                    + "2 - Listar todos");
+                            switch (optionlist2) {
                                 case "1": // Listar por ID
                                     msg = "";
                                     id = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um produto: "));
@@ -371,7 +411,7 @@ public class Exercicio2 {
                                         telefone = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
                                         qtd = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
 
-                                        msg +=  "ID: " + id + "\n"
+                                        msg += "ID: " + id + "\n"
                                                 + "Nome: " + nome + "\n"
                                                 + "Marca: " + marca + "\n"
                                                 + "Telefone: " + telefone + "\n"
@@ -381,13 +421,13 @@ public class Exercicio2 {
 
                                     }
 
-                                    if(!"".equals(msg)) {
+                                    if (!"".equals(msg)) {
                                         JOptionPane.showMessageDialog(null, msg);
-                                    } else { 
+                                    } else {
                                         JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
                                     }
                                     break;
-                                    
+
                                 case "2": // Listar todos
                                     msg = "";
                                     conn = DatabaseService.getConnPostgres();
@@ -401,7 +441,7 @@ public class Exercicio2 {
                                         telefone = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
                                         qtd = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
 
-                                        msg +=  "ID: " + id + "\n"
+                                        msg += "ID: " + id + "\n"
                                                 + "Nome: " + nome + "\n"
                                                 + "Marca: " + marca + "\n"
                                                 + "Telefone: " + telefone + "\n"
@@ -411,21 +451,21 @@ public class Exercicio2 {
 
                                     }
 
-                                    if(!"".equals(msg)) {
+                                    if (!"".equals(msg)) {
                                         JOptionPane.showMessageDialog(null, msg);
-                                    } else { 
+                                    } else {
                                         JOptionPane.showMessageDialog(null, "CADASTROS NÃO ENCONTRADOS.");
                                     }
                                     break;
-                        
+
                             }
                             break;
                         case "3":
 //                        Listagem de Pedidos
                             String optionlist3 = JOptionPane.showInputDialog("Insira uma opcao:\n"
-                                                                    + "1 - Listar por ID \n"
-                                                                    + "2 - Listar todos");
-                            switch(optionlist3) {
+                                    + "1 - Listar por ID \n"
+                                    + "2 - Listar todos");
+                            switch (optionlist3) {
                                 case "1": // Listar por ID
                                     msg = "";
                                     id = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um pedido: "));
@@ -441,7 +481,7 @@ public class Exercicio2 {
                                         valorTotal = rs.getDouble("valor_total") == 0.0 ? 0.0 : rs.getDouble("valor_total");
                                         java.sql.Date data = rs.getDate("datapedido");
 
-                                        msg +=  "ID Pedido: " + id + "\n"
+                                        msg += "ID Pedido: " + id + "\n"
                                                 + "ID Cliente: " + codigoCliente + "\n"
                                                 + "Descrição: " + nome + "\n"
                                                 + "Valor Total: " + valorTotal + "\n"
@@ -451,9 +491,9 @@ public class Exercicio2 {
 
                                     }
 
-                                    if(!"".equals(msg)) {
+                                    if (!"".equals(msg)) {
                                         JOptionPane.showMessageDialog(null, msg);
-                                    } else { 
+                                    } else {
                                         JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
                                     }
 
@@ -470,7 +510,7 @@ public class Exercicio2 {
                                         valorTotal = rs.getDouble("valor_total") == 0.0 ? 0.0 : rs.getDouble("valor_total");
                                         java.sql.Date data = rs.getDate("datapedido");
 
-                                        msg +=  "ID Pedido: " + id + "\n"
+                                        msg += "ID Pedido: " + id + "\n"
                                                 + "ID Cliente: " + codigoCliente + "\n"
                                                 + "Descrição: " + nome + "\n"
                                                 + "Valor Total: " + valorTotal + "\n"
@@ -480,9 +520,9 @@ public class Exercicio2 {
 
                                     }
 
-                                    if(!"".equals(msg)) {
+                                    if (!"".equals(msg)) {
                                         JOptionPane.showMessageDialog(null, msg);
-                                    } else { 
+                                    } else {
                                         JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
                                     }
                                     break;
@@ -514,5 +554,32 @@ public class Exercicio2 {
             }
 
         }
+
     }
+
+    public static JComboBox loadcombo() {
+        ResultSet rs = null;
+        PreparedStatement st = null;
+        JComboBox<String> jComboBox = new JComboBox<String>();
+
+        try {
+            // Your database connections 
+            conn = DatabaseService.getConnPostgres();
+            st = conn.prepareStatement("SELECT * FROM CLIENTES");
+
+            rs = st.executeQuery();
+            while (rs.next()) {
+                jComboBox.addItem(rs.getString(1));
+                jComboBox.addItem(rs.getString(2));
+
+            }
+            conn.close();
+
+        } catch (Exception e) {
+            System.out.println("Error" + e);
+        }
+
+        return jComboBox;
+    }
+
 }
