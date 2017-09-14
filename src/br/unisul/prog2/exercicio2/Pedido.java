@@ -77,17 +77,21 @@ public class Pedido {
     public static void Pedidos() throws SQLException, ParseException {
         try {
             String pedido = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Efetuar Pedido" + "\n"
-                    + "2 - Consultar Pedido" + "\n"
-                    + "3 - Voltar");
+                    + "2 - Consultar Cliente CPF" + "\n"
+                    + "3 - Consultar Pedido Nome"
+                    + "4 - Voltar");
 
             switch (pedido) {
                 case "1":
                     EfetuarPedido();
                     break;
                 case "2":
-                    ConsultarPedido();
+                    ConsultarClienteCpf();
                     break;
                 case "3":
+                    ConsultarProdutoNome();
+                    break;
+                case "4":
                     Exercicio2.Exercicio2();
                     break;
                 default:
@@ -155,8 +159,46 @@ public class Pedido {
 
     }
 
-    private static void ConsultarPedido() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private static void ConsultarClienteCpf() {
+        try {
+            String msg = "";
+            int cpf = Integer.parseInt(JOptionPane.showInputDialog(null, "Digite o cpf do cliente: "));
+            conn = DatabaseService.getConnPostgres();
+            st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE cpf = ?");
+            st.setInt(1, cpf);
+
+            rs = st.executeQuery();
+            while (rs.next()) {
+                int codigo = rs.getInt("codigo") == 0 ? 0 : rs.getInt("codigo");
+                String nome = rs.getString("nome") == null ? "" : rs.getString("nome");
+                String telefone = rs.getString("telefone") == null ? "" : rs.getString("telefone");
+
+                msg += "ID Cliente: " + codigo + "\n"
+                        + "Nome: " + nome + "\n"
+                        + "Telefone: " + telefone + "\n";
+            }
+
+            if (!"".equals(msg)) {
+                JOptionPane.showMessageDialog(null, msg);
+            } else {
+                JOptionPane.showMessageDialog(null, "CLIENTE NÃO ENCONTRADO.");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+                Pedidos();
+            } catch (Exception e) {
+
+            }
+
+        }
     }
 
     public static void ListarPedidoId() throws SQLException {
@@ -253,6 +295,10 @@ public class Pedido {
 
         }
 
+    }
+
+    private static void ConsultarProdutoNome() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

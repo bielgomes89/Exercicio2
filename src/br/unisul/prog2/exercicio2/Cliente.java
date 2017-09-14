@@ -131,14 +131,15 @@ public class Cliente {
         Cliente clienteDB = new Cliente();
 
         try {
+            int codigo = Integer.parseInt(JOptionPane.showInputDialog("Informe o código do Cliente"));
             String nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
+            String cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
             String endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
             String telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
-            String cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
-            String email = JOptionPane.showInputDialog("Informe o email do cliente: ");
-            String estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
             String dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
-
+            String email = JOptionPane.showInputDialog("Informe o email do cliente: ");
+            String estadoCivil = JOptionPane.showInputDialog("Informe o estado civil: ");
+            
             clienteDB.cadastroCliente(nome, endereco, telefone, cpf, email, estadoCivil, dataNascimento);
 
             java.util.Date dtnasc = formatter.parse(dataNascimento);
@@ -147,15 +148,16 @@ public class Cliente {
             java.sql.Date data = new java.sql.Date(formatter.parse(dataNascimento).getTime());
 
             conn = DatabaseService.getConnPostgres();
-            PreparedStatement st = conn.prepareStatement("INSERT INTO CLIENTES (nome, cpf, endereco, telefone, dtnascimento, email, senha) VALUES( ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement st = conn.prepareStatement("INSERT INTO CLIENTES (codcli, nome, endereco, telefone, cpf, dtnascimento, email, estadocivil) VALUES(?, ?, ?, ?, ?, ?, ?, ?) ");
 
-            st.setString(1, nome);
-            st.setString(2, endereco);
-            st.setString(3, telefone);
-            st.setString(4, cpf);
-            st.setDate(5, data);
-            st.setString(6, email);
-            st.setString(7, estadoCivil);
+            st.setInt(1, codigo);
+            st.setString(2, nome);
+            st.setString(3, endereco);
+            st.setString(4, telefone);
+            st.setString(5, cpf);
+            st.setDate(6, data);
+            st.setString(7, email);
+            st.setString(8, estadoCivil);
 
             rs = st.executeQuery();
         } catch (Exception e) {
