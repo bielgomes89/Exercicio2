@@ -231,9 +231,9 @@ public class Cliente {
             String dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
             java.util.Date dtnasc = formatter.parse(dataNascimento);
             Date sqlDate = new java.sql.Date(dtnasc.getTime());
-
+            
             conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("UPDATE CLIENTES SET nome = ?, cpf = ?, endereco = ?, telefone = ?, dtnascimento = ?, email = ?, senha = ? WHERE codcli = ?");
+            st = conn.prepareStatement("UPDATE CLIENTES SET nome = ?, endereco = ?, telefone = ?, cpf = ?, dtnascimento = ?, email = ?, estadocivil = ? WHERE codcli = ?");
             st.setString(1, nome);
             st.setString(2, endereco);
             st.setString(3, telefone);
@@ -241,7 +241,6 @@ public class Cliente {
             st.setDate(5, sqlDate);
             st.setString(6, email);
             st.setString(7, estadoCivil);
-            st.setInt(8, codigo);
 
             rs = st.executeQuery();
         } catch (Exception e) {
@@ -284,7 +283,7 @@ public class Cliente {
                 String cpf = rs.getString("cpf") == null ? "" : rs.getString("cpf");
                 java.sql.Date data = rs.getDate("dtnascimento");
                 String email = rs.getString("email") == null ? "" : rs.getString("email");
-                String estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
+                String estadoCivil = rs.getString("estadocivil") == null ? "" : rs.getString("estadocivil");
 
                 msg += "ID: " + codigo + "\n"
                         + "Nome: " + nome + "\n"
@@ -338,7 +337,7 @@ public class Cliente {
                 String cpf = rs.getString("cpf") == null ? "" : rs.getString("cpf");
                 java.sql.Date data = rs.getDate("dtnascimento");
                 String email = rs.getString("email") == null ? "" : rs.getString("email");
-                String estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
+                String estadoCivil = rs.getString("estadocivil") == null ? "" : rs.getString("estadocivil");
 
                 msg += "ID: " + codigo + "\n"
                         + "Nome: " + nome + "\n"

@@ -191,7 +191,6 @@ public class Produto {
             rs = st.executeQuery();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
         } finally {
             try {
                 if (st != null) {
@@ -225,13 +224,13 @@ public class Produto {
                 id = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
                 nome = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
                 marca = rs.getString("marca") == null ? "" : rs.getString("marca");
-                String telefone = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
+                String vlUnitario = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
                 int qtd = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
 
                 msg += "ID: " + id + "\n"
                         + "Nome: " + nome + "\n"
                         + "Marca: " + marca + "\n"
-                        + "Telefone: " + telefone + "\n"
+                        + "Valor Un.: " + vlUnitario + "\n"
                         + "Quantidade: " + qtd + "\n\n";
 
                 System.out.println(msg);
@@ -244,7 +243,6 @@ public class Produto {
                 JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
         } finally {
             try {
                 if (st != null) {
@@ -275,16 +273,14 @@ public class Produto {
                 int id = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
                 nome = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
                 marca = rs.getString("marca") == null ? "" : rs.getString("marca");
-                String telefone = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
+                String vlUnitario = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
                 int qtd = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
 
                 msg += "ID: " + id + "\n"
                         + "Nome: " + nome + "\n"
                         + "Marca: " + marca + "\n"
-                        + "Telefone: " + telefone + "\n"
+                        + "Valor: " + vlUnitario + "\n"
                         + "Quantidade: " + qtd + "\n\n";
-
-                System.out.println(msg);
 
             }
 
@@ -294,7 +290,6 @@ public class Produto {
                 JOptionPane.showMessageDialog(null, "CADASTROS NÃO ENCONTRADOS.");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
         } finally {
             try {
                 if (st != null) {

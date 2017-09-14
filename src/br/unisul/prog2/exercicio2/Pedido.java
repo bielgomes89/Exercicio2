@@ -1,6 +1,7 @@
 package br.unisul.prog2.exercicio2;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -77,8 +78,8 @@ public class Pedido {
     public static void Pedidos() throws SQLException, ParseException {
         try {
             String pedido = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Efetuar Pedido" + "\n"
-                    + "2 - Consultar Cliente CPF" + "\n"
-                    + "3 - Consultar Pedido Nome"
+                    + "2 - Consultar Cliente CPF " + "\n"
+                    + "3 - Consultar Produto " + "\n"
                     + "4 - Voltar");
 
             switch (pedido) {
@@ -121,25 +122,95 @@ public class Pedido {
             }
 
             int codcli = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do cliente:" + "\n" + msg));
-            String descricao = JOptionPane.showInputDialog("Informe a descrição do produto: ");
-            double vlTotal = Double.parseDouble(JOptionPane.showInputDialog("Informe o Valor Total do Produto: "));
+            
+            
+            msg = "";
+            double valorUnitario = 0;
+            conn = DatabaseService.getConnPostgres();
+            st = conn.prepareStatement("SELECT * FROM PRODUTOS");
+            rs = st.executeQuery();
+            while (rs.next()) {
+                int codigo = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
+                String nome = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
+                valorUnitario = rs.getDouble("valor_unitario") == 0 ? 0 : rs.getDouble("valor_unitario");
+                
+                msg += "ID: " + codigo + "\n"
+                        + "Nome Produto: " + nome + "\n"
+                        + "Valor Uni: " + valorUnitario + "\n" + "\n";
+            }
+            
+            int codProduto = Integer.parseInt(JOptionPane.showInputDialog("Informe o codigo do produto:" + "\n" + msg));
+            
+            st = conn.prepareStatement("SELECT * FROM PRODUTOS WHERE cod_produto = ?");
+            st.setInt(1, codProduto);
+            rs = st.executeQuery();
+            
+            int quantidadeProduto = 0;
+            double valorUnitarioProduto = 0;
+            String nomeProduto = "";
+                    
+            while (rs.next()) {
+                nomeProduto = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
+                valorUnitarioProduto = rs.getDouble("valor_unitario") == 0 ? 0 : rs.getDouble("valor_unitario");
+                quantidadeProduto = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");              
+            }
+            
             String dataPedido = JOptionPane.showInputDialog("Informe a data do pedido: ");
             java.util.Date dtPedido = formatter.parse(dataPedido);
-            java.sql.Date sqlDate = new java.sql.Date(dtPedido.getTime());
-            java.sql.Date data = new java.sql.Date(formatter.parse(dataPedido).getTime());
-
-            pedidoDB.cadastroPedido(codcli, descricao, vlTotal, dataPedido);
-
+            Date sqlDate = new java.sql.Date(dtPedido.getTime());
+            
+            int quantidadePedido = 0;
+            
+            quantidadePedido = Integer.parseInt(JOptionPane.showInputDialog("Digite a quantidade de produto deste pedido: "));
+            
+            double valorTotalPedido = 0;
+            
+            if(quantidadePedido > quantidadeProduto)
+            {
+                JOptionPane.showMessageDialog(null, "O estoque do produto não possui" + quantidadePedido + "itens.");
+                Pedidos();
+            }else{
+                valorTotalPedido = quantidadePedido * valorUnitario;
+            }      
+            
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            
+            JOptionPane.showConfirmDialog(null, "Você está adquirindo: " + "\n"
+                                              + "Produto Código: " + codProduto + "\n"
+                                              + "Nome do Produto: " + nomeProduto + "\n"
+                                              + "Preço Unitário: " + valorUnitario + "\n"
+                                              + "Quantidade Comprada" + quantidadePedido + "\n"
+                                              + "Valor Total:" + valorTotalPedido + "\n"
+                                              + "Deseja fechar a compra?", "Atenção", dialogButton);
+            
+            if(dialogButton == JOptionPane.YES_OPTION)
+            {
+                
+            
             conn = DatabaseService.getConnPostgres();
             st = conn.prepareStatement("INSERT INTO PEDIDOS (codcli, descricao, valor_total, datapedido) VALUES( ?, ?, ?, ?)");
             st.setInt(1, codcli);
-            st.setString(2, descricao);
-            st.setDouble(3, vlTotal);
-            st.setDate(4, data);
+            st.setString(2, nomeProduto);
+            st.setDouble(3, valorTotalPedido);
+            st.setDate(4, sqlDate);
             rs = st.executeQuery();
+            rs = st.getGeneratedKeys();
+            
+            int codPedido = rs.getInt(1);
+            
+            st = conn.prepareStatement("INSERT INTO ITEM_PEDIDO (cod_pedido, cod_produto, valor_item, quantidade_itens) VALUES( ?, ?, ?, ?)");
+            st.setInt(1, codPedido);
+            st.setInt(2, codProduto);
+            st.setDouble(3, valorUnitario);
+            st.setInt(4, quantidadePedido);
+            rs = st.executeQuery();
+            
+            }else{
+                Pedidos();
+            }
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            //JOptionPane.showMessageDialog(null, e);
         } finally {
             try {
                 if (st != null) {
@@ -162,14 +233,14 @@ public class Pedido {
     private static void ConsultarClienteCpf() {
         try {
             String msg = "";
-            int cpf = Integer.parseInt(JOptionPane.showInputDialog(null, "Digite o cpf do cliente: "));
+            String cpf = JOptionPane.showInputDialog(null, "Digite o cpf do cliente: ");
             conn = DatabaseService.getConnPostgres();
             st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE cpf = ?");
-            st.setInt(1, cpf);
+            st.setString(1, cpf);
 
             rs = st.executeQuery();
             while (rs.next()) {
-                int codigo = rs.getInt("codigo") == 0 ? 0 : rs.getInt("codigo");
+                int codigo = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
                 String nome = rs.getString("nome") == null ? "" : rs.getString("nome");
                 String telefone = rs.getString("telefone") == null ? "" : rs.getString("telefone");
 
@@ -298,7 +369,46 @@ public class Pedido {
     }
 
     private static void ConsultarProdutoNome() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String msg = "";
+            String nome = JOptionPane.showInputDialog(null, "Digite o nome do produto: ");
+            conn = DatabaseService.getConnPostgres();
+            st = conn.prepareStatement("SELECT * FROM PRODUTOS WHERE nome_produto = ?");
+            st.setString(1, nome);
+
+            rs = st.executeQuery();
+            while (rs.next()) {
+                int codigo = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
+                String valorUnitario = rs.getString("valor_unitario") == null ? "" : rs.getString("valor_unitario");
+                String marca = rs.getString("marca") == null ? "" : rs.getString("marca");
+                int quantidade = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
+
+                msg += "Nome Produto: " + nome + "\n"
+                        + "Valor: " + valorUnitario + "\n"
+                        + "Marca: " + marca + "\n"
+                        + "Quantidade: " + quantidade;
+            }
+
+            if (!"".equals(msg)) {
+                JOptionPane.showMessageDialog(null, msg);
+            } else {
+                JOptionPane.showMessageDialog(null, "PRODUTO NÃO ENCONTRADO.");
+            }
+        } catch (Exception e) {
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+                Pedidos();
+            } catch (Exception e) {
+
+            }
+
+        }
     }
 
 }
