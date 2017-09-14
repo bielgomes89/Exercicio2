@@ -200,7 +200,7 @@ public class Exercicio2 {
 
     }
 
-
+    //parei aqui
     // Pedidos
     private static void Pedidos() throws SQLException, ParseException {
         try {
