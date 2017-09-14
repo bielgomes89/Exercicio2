@@ -1,26 +1,27 @@
 package br.unisul.prog2.exercicio2;
 
-import static br.unisul.prog2.exercicio2.Exercicio2.formatter;
-import static br.unisul.prog2.exercicio2.Exercicio2.nome;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 
 public class Cliente {
 
-    static public int codigo;
-    static public String nome;
-    static public String endereco;
-    static public String telefone;
-    static public String cpf;
-    static public String email;
-    static public String estadoCivil;
-    static public String dataNascimento;
-    
+    public int codigo;
+    public String nome;
+    public String endereco;
+    public String telefone;
+    public String cpf;
+    public String email;
+    public String estadoCivil;
+    public String dataNascimento;
+
+    static DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
     static Connection conn = null;
     static ResultSet rs = null;
     static PreparedStatement st = null;
@@ -100,9 +101,35 @@ public class Cliente {
         this.dataNascimento = dataNascimento;
     }
 
+    public static void CadastroCliente() throws ParseException, SQLException {
+        try {
+            String option1 = JOptionPane.showInputDialog("Insira a opção desejada: \n" + "1 - Inserir cliente" + "\n"
+                    + "2 - Remover cliente" + "\n"
+                    + "3 - Alterar cliente" + "\n"
+                    + "4 - Voltar");
+
+            switch (option1) {
+                case "1": //Inserir Cliente
+                    InserirCliente();
+                    break;
+                case "2": // Remover Cliente
+                    RemoverCliente();
+                    break;
+                case "3": // Alterar Cliente
+                    AlterarCliente();
+                    break;
+                case "4":
+                    Cadastro.Cadastros();
+                    break;
+            }
+        } catch (Exception e) {
+        }
+
+    }
+
     public static void InserirCliente() throws ParseException, SQLException {
         Cliente clienteDB = new Cliente();
-        
+
         try {
             String nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
             String endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
@@ -155,7 +182,7 @@ public class Cliente {
 
     public static void RemoverCliente() throws SQLException {
         try {
-            cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
+            String cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
             conn = DatabaseService.getConnPostgres();
             st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE cpf = ?");
             st.setString(1, cpf);
@@ -192,14 +219,14 @@ public class Cliente {
 
     public static void AlterarCliente() throws ParseException, SQLException {
         try {
-            codigo = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do Cliente:"));
-            nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
-            endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
-            telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
-            cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
-            email = JOptionPane.showInputDialog("Informe o email do cliente: ");
-            estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
-            dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
+            int codigo = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do Cliente:"));
+            String nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
+            String endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
+            String telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
+            String cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
+            String email = JOptionPane.showInputDialog("Informe o email do cliente: ");
+            String estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
+            String dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
             java.util.Date dtnasc = formatter.parse(dataNascimento);
             Date sqlDate = new java.sql.Date(dtnasc.getTime());
 
@@ -236,4 +263,117 @@ public class Cliente {
         }
 
     }
+
+    public static void ListarClienteId() throws SQLException {
+        try {
+            //Listagem de Clientes por ID
+            String msg = "";
+            int codigo = Integer.parseInt(JOptionPane.showInputDialog(null, "Insira o ID de um cliente: "));
+            conn = DatabaseService.getConnPostgres();
+            st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE codcli = ?");
+            st.setInt(1, codigo);
+
+            rs = st.executeQuery();
+            while (rs.next()) {
+                codigo = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                String nome = rs.getString("nome") == null ? "" : rs.getString("nome");
+                String endereco = rs.getString("endereco") == null ? "" : rs.getString("endereco");
+                String telefone = rs.getString("telefone") == null ? "" : rs.getString("telefone");
+                String cpf = rs.getString("cpf") == null ? "" : rs.getString("cpf");
+                java.sql.Date data = rs.getDate("dtnascimento");
+                String email = rs.getString("email") == null ? "" : rs.getString("email");
+                String estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
+
+                msg += "ID: " + codigo + "\n"
+                        + "Nome: " + nome + "\n"
+                        + "CPF: " + cpf + "\n"
+                        + "Endereco: " + endereco + "\n"
+                        + "Telefone: " + telefone + "\n"
+                        + "Dt. Nasc: " + data + "\n"
+                        + "Email: " + email + "\n"
+                        + "Estado Civil: " + estadoCivil + "\n\n";
+                System.out.println(msg);
+
+            }
+
+            if (!"".equals(msg)) {
+                JOptionPane.showMessageDialog(null, msg);
+            } else {
+                JOptionPane.showMessageDialog(null, "CADASTRO NÃO ENCONTRADO.");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+
+                Exercicio2.Exercicio2();
+
+            } catch (Exception e) {
+
+            }
+
+        }
+    }
+
+    public static void ListarClienteTodos() throws SQLException {
+        try {
+            String msg = "";
+            conn = DatabaseService.getConnPostgres();
+            st = conn.prepareStatement("SELECT * FROM CLIENTES");
+            rs = st.executeQuery();
+            while (rs.next()) {
+                int codigo = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                String nome = rs.getString("nome") == null ? "" : rs.getString("nome");
+                String endereco = rs.getString("endereco") == null ? "" : rs.getString("endereco");
+                String telefone = rs.getString("telefone") == null ? "" : rs.getString("telefone");
+                String cpf = rs.getString("cpf") == null ? "" : rs.getString("cpf");
+                java.sql.Date data = rs.getDate("dtnascimento");
+                String email = rs.getString("email") == null ? "" : rs.getString("email");
+                String estadoCivil = rs.getString("senha") == null ? "" : rs.getString("senha");
+
+                msg += "ID: " + codigo + "\n"
+                        + "Nome: " + nome + "\n"
+                        + "CPF: " + cpf + "\n"
+                        + "Endereco: " + endereco + "\n"
+                        + "Telefone: " + telefone + "\n"
+                        + "Dt. Nasc: " + data + "\n"
+                        + "Email: " + email + "\n"
+                        + "Estado Civil: " + estadoCivil + "\n\n";
+                System.out.println(msg);
+
+            }
+
+            if (!"".equals(msg)) {
+                JOptionPane.showMessageDialog(null, msg);
+            } else {
+                JOptionPane.showMessageDialog(null, "CADASTROS NÃO ENCONTRADOS.");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+
+                Exercicio2.Exercicio2();
+
+            } catch (Exception e) {
+
+            }
+
+        }
+
+    }
+
 }
