@@ -6,6 +6,14 @@ public class Pedido {
     public String descricao;
     public double valorTotal; 
     public String dataPedido;
+    
+    public void cadastroPedido(int codCliente, String descricao, double valorTotal, String dataPedido) {
+        Pedido pedidoDBPedido = new Pedido();
+        pedidoDBPedido.setCodCliente(codCliente);
+        pedidoDBPedido.setDescricao(descricao);
+        pedidoDBPedido.setValorTotal(valorTotal);
+        pedidoDBPedido.setDataPedido(dataPedido);
+    }
 
     public void cadastroPedido() {
         Pedido pedidoDB = new Pedido();
