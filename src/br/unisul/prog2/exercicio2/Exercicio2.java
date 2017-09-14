@@ -33,9 +33,7 @@ public class Exercicio2 {
     static PreparedStatement st = null;
     static int codigoCliente = 0;
     static ResultSet rs = null;
-    static Cliente clienteDB = new Cliente();
     static Pedido pedidoDB = new Pedido();
-    static Produto produtoDB = new Produto();
     static String cadastro = "";
     static String pedido = "";
     static String relatorio = "";
@@ -155,13 +153,13 @@ public class Exercicio2 {
 
             switch (option1) {
                 case "1": //Inserir Cliente
-                    InserirCliente();
+                    Cliente.InserirCliente();
                     break;
                 case "2": // Remover Cliente
-                    RemoverCliente();
+                    Cliente.RemoverCliente();
                     break;
                 case "3": // Alterar Cliente
-                    AlterarCliente();
+                    Cliente.AlterarCliente();
                     break;
                 case "4":
                     Cadastros();
@@ -172,131 +170,7 @@ public class Exercicio2 {
 
     }
 
-    private static void InserirCliente() throws ParseException, SQLException {
-        try {
-            nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
-            endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
-            telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
-            cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
-            email = JOptionPane.showInputDialog("Informe o email do cliente: ");
-            estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
-            dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
-
-            clienteDB.cadastroCliente(nome, endereco, telefone, cpf, email, estadoCivil, dataNascimento);
-
-            java.util.Date dtnasc = formatter.parse(dataNascimento);
-            java.sql.Date sqlDate = new java.sql.Date(dtnasc.getTime());
-
-            java.sql.Date data = new java.sql.Date(formatter.parse(dataNascimento).getTime());
-
-            conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("INSERT INTO CLIENTES (nome, cpf, endereco, telefone, dtnascimento, email, senha) VALUES( ?, ?, ?, ?, ?, ?, ?)");
-
-            st.setString(1, nome);
-            st.setString(2, endereco);
-            st.setString(3, telefone);
-            st.setString(4, cpf);
-            st.setDate(5, data);
-            st.setString(6, email);
-            st.setString(7, estadoCivil);
-
-            rs = st.executeQuery();
-        } catch (Exception e) {
-            System.out.println(e);
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-
-            } catch (Exception e) {
-
-            }
-
-        }
-
-    }
-
-    private static void RemoverCliente() throws SQLException {
-        try {
-            cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
-            conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("SELECT * FROM CLIENTES WHERE cpf = ?");
-            st.setString(1, cpf);
-            rs = st.executeQuery();
-
-            if (rs.next()) {
-                st = conn.prepareStatement("DELETE FROM CLIENTES WHERE cpf = ?");
-                st.setString(1, cpf);
-                rs = st.executeQuery();
-            } else {
-                JOptionPane.showMessageDialog(null, "CLIENTE NÃO ENCONTRADO.");
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-
-            } catch (Exception e) {
-
-            }
-
-        }
-
-    }
-
-    private static void AlterarCliente() throws ParseException, SQLException {
-        try {
-            id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do Cliente:"));
-            nome = JOptionPane.showInputDialog("Informe o nome do cliente: ");
-            endereco = JOptionPane.showInputDialog("Informe o endereço do cliente: ");
-            telefone = JOptionPane.showInputDialog("Informe o telefone do cliente: ");
-            cpf = JOptionPane.showInputDialog("Informe o CPF do cliente: ");
-            email = JOptionPane.showInputDialog("Informe o email do cliente: ");
-            estadoCivil = JOptionPane.showInputDialog("Informe o Estado Civil do cliente: ");
-            dataNascimento = JOptionPane.showInputDialog("Informe a data de nascimento do cliente: ");
-            dtnasc = formatter.parse(dataNascimento);
-            Date sqlDate = new java.sql.Date(dtnasc.getTime());
-
-            conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("UPDATE CLIENTES SET nome = ?, cpf = ?, endereco = ?, telefone = ?, dtnascimento = ?, email = ?, senha = ? WHERE codcli = ?");
-            st.setString(1, nome);
-            st.setString(2, endereco);
-            st.setString(3, telefone);
-            st.setString(4, cpf);
-            st.setDate(5, sqlDate);
-            st.setString(6, email);
-            st.setString(7, estadoCivil);
-            st.setInt(8, id);
-
-            rs = st.executeQuery();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-
-            } catch (Exception e) {
-
-            }
-
-        }
-
-    }
+    
 
     // Cadastro Produto
     private static void CadastroProduto() throws SQLException, ParseException {
@@ -308,13 +182,13 @@ public class Exercicio2 {
 
             switch (option2) {
                 case "1": // Inserir Produto
-                    InserirProduto();
+                    Produto.InserirProduto();
                     break;
                 case "2":
-                    RemoverProduto();
+                    Produto.RemoverProduto();
                     break;
                 case "3":
-                    AlterarProduto();
+                    Produto.AlterarProduto();
                     break;
                 case "4":
                     Cadastros();
@@ -326,113 +200,6 @@ public class Exercicio2 {
 
     }
 
-    private static void InserirProduto() throws SQLException {
-        try {
-            id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do produto: "));
-            id = Integer.parseInt(String.format("%06d", id));
-            nome = JOptionPane.showInputDialog("Informe o nome do produto: ");
-            marca = JOptionPane.showInputDialog("Informe a marca do produto: ");
-            valor = Float.parseFloat(JOptionPane.showInputDialog("Informe o valor do produto: "));
-            qtd = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade do produto: "));
-            produtoDB.cadastroPedido(nome, marca, valor, qtd);
-
-            conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("INSERT INTO PRODUTOS (cod_produto, nome_produto, marca, valor_unitario, quantidade) VALUES(?, ?, ?, ?, ?)");
-
-            st.setInt(1, id);
-            st.setString(2, nome);
-            st.setString(3, marca);
-            st.setFloat(4, valor);
-            st.setInt(5, qtd);
-
-            rs = st.executeQuery();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-
-            } catch (Exception e) {
-
-            }
-
-        }
-
-    }
-
-    private static void RemoverProduto() throws SQLException {
-        try {
-            id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do produto: "));
-            conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("SELECT * FROM PRODUTOS WHERE cod_produto = ?");
-            st.setInt(1, id);
-            rs = st.executeQuery();
-            if (rs.next()) {
-                st = conn.prepareStatement("DELETE FROM PRODUTOS WHERE cod_produto = ?");
-                st.setInt(1, id);
-                rs = st.executeQuery();
-            } else {
-                JOptionPane.showMessageDialog(null, "PRODUTO NÃO ENCONTRADO.");
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-
-            } catch (Exception e) {
-
-            }
-
-        }
-    }
-
-    private static void AlterarProduto() throws SQLException {
-        try {
-            id = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do produto: "));
-            nome = JOptionPane.showInputDialog("Informe o nome do produto: ");
-            marca = JOptionPane.showInputDialog("Informe a marca do produto: ");
-            valor = Float.parseFloat(JOptionPane.showInputDialog("Informe o valor do produto: "));
-            qtd = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade do produto: "));
-
-            conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("UPDATE PRODUTOS SET nome_produto = ?, marca = ?, valor_unitario = ?, quantidade = ? WHERE cod_produto = ?");
-            st.setString(1, nome);
-            st.setString(2, marca);
-            st.setFloat(3, valor);
-            st.setInt(4, qtd);
-            st.setInt(5, id);
-            rs = st.executeQuery();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-
-            } catch (Exception e) {
-
-            }
-
-        }
-
-    }
-    //--
 
     // Pedidos
     private static void Pedidos() throws SQLException, ParseException {
@@ -492,6 +259,7 @@ public class Exercicio2 {
             st.setDouble(3, vlTotal);
             st.setDate(4, data);
             rs = st.executeQuery();
+           
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
@@ -503,7 +271,8 @@ public class Exercicio2 {
                 if (conn != null) {
                     conn.close();
                 }
-                Pedidos();
+                JOptionPane.showMessageDialog(null, "Pedido cadastrado com sucesso!");
+                Exercicio2();
 
             } catch (Exception e) {
 
@@ -612,7 +381,7 @@ public class Exercicio2 {
                 if (conn != null) {
                     conn.close();
                 }
-                ListagemPedido();
+                Exercicio2();
             } catch (Exception e) {
 
             }
@@ -658,7 +427,7 @@ public class Exercicio2 {
                 if (conn != null) {
                     conn.close();
                 }
-                ListagemPedido();
+                Exercicio2();
             } catch (Exception e) {
 
             }
@@ -740,6 +509,8 @@ public class Exercicio2 {
                 if (conn != null) {
                     conn.close();
                 }
+                
+                Exercicio2();
 
             } catch (Exception e) {
 
@@ -793,6 +564,8 @@ public class Exercicio2 {
                     conn.close();
                 }
 
+                Exercicio2();
+
             } catch (Exception e) {
 
             }
@@ -821,7 +594,7 @@ public class Exercicio2 {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
-        } 
+        }
 
     }
 
@@ -858,7 +631,7 @@ public class Exercicio2 {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
-        }finally {
+        } finally {
             try {
                 if (st != null) {
                     st.close();
@@ -866,6 +639,8 @@ public class Exercicio2 {
                 if (conn != null) {
                     conn.close();
                 }
+
+                Exercicio2();
 
             } catch (Exception e) {
 
@@ -914,6 +689,8 @@ public class Exercicio2 {
                 if (conn != null) {
                     conn.close();
                 }
+
+                Exercicio2();
 
             } catch (Exception e) {
 
