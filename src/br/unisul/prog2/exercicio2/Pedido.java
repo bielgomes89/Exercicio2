@@ -106,6 +106,10 @@ public class Pedido {
 
     private static void EfetuarPedido() throws SQLException, ParseException {
         Pedido pedidoDB = new Pedido();
+        int codigo = 0;
+        int codProduto = 0;
+        double valorUnitario = 0.0;
+        int quantidadePedido = 0;
 
         try {
             String msg = "";
@@ -113,7 +117,7 @@ public class Pedido {
             st = conn.prepareStatement("SELECT * FROM CLIENTES");
             rs = st.executeQuery();
             while (rs.next()) {
-                int codigo = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
+                codigo = rs.getInt("codcli") == 0 ? 0 : rs.getInt("codcli");
                 String nome = rs.getString("nome") == null ? "" : rs.getString("nome");
 
                 msg += "ID: " + codigo + "  |  "
@@ -122,90 +126,94 @@ public class Pedido {
             }
 
             int codcli = Integer.parseInt(JOptionPane.showInputDialog("Informe o ID do cliente:" + "\n" + msg));
-            
-            
+
             msg = "";
-            double valorUnitario = 0;
+            valorUnitario = 0;
             conn = DatabaseService.getConnPostgres();
             st = conn.prepareStatement("SELECT * FROM PRODUTOS");
             rs = st.executeQuery();
             while (rs.next()) {
-                int codigo = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
+                codigo = rs.getInt("cod_produto") == 0 ? 0 : rs.getInt("cod_produto");
                 String nome = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
                 valorUnitario = rs.getDouble("valor_unitario") == 0 ? 0 : rs.getDouble("valor_unitario");
-                
+
                 msg += "ID: " + codigo + "\n"
                         + "Nome Produto: " + nome + "\n"
                         + "Valor Uni: " + valorUnitario + "\n" + "\n";
             }
-            
-            int codProduto = Integer.parseInt(JOptionPane.showInputDialog("Informe o codigo do produto:" + "\n" + msg));
-            
+
+            codProduto = Integer.parseInt(JOptionPane.showInputDialog("Informe o codigo do produto:" + "\n" + msg));
+
             st = conn.prepareStatement("SELECT * FROM PRODUTOS WHERE cod_produto = ?");
             st.setInt(1, codProduto);
             rs = st.executeQuery();
-            
+
             int quantidadeProduto = 0;
             double valorUnitarioProduto = 0;
             String nomeProduto = "";
-                    
+
             while (rs.next()) {
                 nomeProduto = rs.getString("nome_produto") == null ? "" : rs.getString("nome_produto");
                 valorUnitarioProduto = rs.getDouble("valor_unitario") == 0 ? 0 : rs.getDouble("valor_unitario");
-                quantidadeProduto = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");              
+                quantidadeProduto = rs.getInt("quantidade") == 0 ? 0 : rs.getInt("quantidade");
             }
-            
+
             String dataPedido = JOptionPane.showInputDialog("Informe a data do pedido: ");
             java.util.Date dtPedido = formatter.parse(dataPedido);
             Date sqlDate = new java.sql.Date(dtPedido.getTime());
-            
-            int quantidadePedido = 0;
-            
+
+            quantidadePedido = 0;
+
             quantidadePedido = Integer.parseInt(JOptionPane.showInputDialog("Digite a quantidade de produto deste pedido: "));
-            
+
             double valorTotalPedido = 0;
-            
-            if(quantidadePedido > quantidadeProduto)
-            {
+
+            if (quantidadePedido > quantidadeProduto) {
                 JOptionPane.showMessageDialog(null, "O estoque do produto não possui" + quantidadePedido + "itens.");
                 Pedidos();
-            }else{
+            } else {
                 valorTotalPedido = quantidadePedido * valorUnitario;
-            }      
-            
+            }
+
             int dialogButton = JOptionPane.YES_NO_OPTION;
-            
+
             JOptionPane.showConfirmDialog(null, "Você está adquirindo: " + "\n"
-                                              + "Produto Código: " + codProduto + "\n"
-                                              + "Nome do Produto: " + nomeProduto + "\n"
-                                              + "Preço Unitário: " + valorUnitario + "\n"
-                                              + "Quantidade Comprada" + quantidadePedido + "\n"
-                                              + "Valor Total:" + valorTotalPedido + "\n"
-                                              + "Deseja fechar a compra?", "Atenção", dialogButton);
-            
-            if(dialogButton == JOptionPane.YES_OPTION)
-            {
-                
-            
-            conn = DatabaseService.getConnPostgres();
-            st = conn.prepareStatement("INSERT INTO PEDIDOS (codcli, descricao, valor_total, datapedido) VALUES( ?, ?, ?, ?)");
-            st.setInt(1, codcli);
-            st.setString(2, nomeProduto);
-            st.setDouble(3, valorTotalPedido);
-            st.setDate(4, sqlDate);
-            rs = st.executeQuery();
-            rs = st.getGeneratedKeys();
-            
-            int codPedido = rs.getInt(1);
-            
-            st = conn.prepareStatement("INSERT INTO ITEM_PEDIDO (cod_pedido, cod_produto, valor_item, quantidade_itens) VALUES( ?, ?, ?, ?)");
-            st.setInt(1, codPedido);
-            st.setInt(2, codProduto);
-            st.setDouble(3, valorUnitario);
-            st.setInt(4, quantidadePedido);
-            rs = st.executeQuery();
-            
-            }else{
+                    + "Produto Código: " + codProduto + "\n"
+                    + "Nome do Produto: " + nomeProduto + "\n"
+                    + "Preço Unitário: " + valorUnitario + "\n"
+                    + "Quantidade Comprada" + quantidadePedido + "\n"
+                    + "Valor Total:" + valorTotalPedido + "\n"
+                    + "Deseja fechar a compra?", "Atenção", dialogButton);
+
+            if (dialogButton == JOptionPane.YES_OPTION) {
+                conn = DatabaseService.getConnPostgres();
+                st = conn.prepareStatement("INSERT INTO PEDIDOS (codcli, descricao, valor_total, datapedido) VALUES( ?, ?, ?, ?)");
+                st.setInt(1, codcli);
+                st.setString(2, nomeProduto);
+                st.setDouble(3, valorTotalPedido);
+                st.setDate(4, sqlDate);
+                st.executeUpdate();
+
+                int codigoPedido = 0;
+
+                conn = DatabaseService.getConnPostgres();
+                st = conn.prepareStatement("SELECT * FROM PEDIDOS ORDER BY 1 DESC limit 1");
+                rs = st.executeQuery();
+                while (rs.next()) {
+                    codigoPedido = rs.getInt("codpedido") == 0 ? 0 : rs.getInt("codpedido");
+                }
+
+                conn = DatabaseService.getConnPostgres();
+                st = conn.prepareStatement("INSERT INTO ITEM_PEDIDO (cod_pedido, cod_produto, valor_item, quantidade_itens) VALUES( ?, ?, ?, ?)");
+                st.setInt(1, codigoPedido);
+                st.setInt(2, codProduto);
+                st.setDouble(3, valorUnitario);
+                st.setInt(4, 2);
+                st.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Pedido cadastrado com sucesso!");
+
+            } else {
                 Pedidos();
             }
 
@@ -219,13 +227,12 @@ public class Pedido {
                 if (conn != null) {
                     conn.close();
                 }
-                JOptionPane.showMessageDialog(null, "Pedido cadastrado com sucesso!");
-                Exercicio2.Exercicio2();
+
+                Pedidos();
 
             } catch (Exception e) {
 
             }
-
         }
 
     }
